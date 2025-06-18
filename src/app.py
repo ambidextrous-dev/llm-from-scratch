@@ -1,5 +1,6 @@
 import torch
 
+from src.attention.simpleAttention import SimpleAttention
 from src.dataloader.dataloader import GPTDataLoader
 from src.utils.utils import get_raw_text
 
@@ -45,7 +46,7 @@ new_dataloader = GPTDataLoader(
 
 # vocab size of BPE tokenizer
 vocab_size_new = 50257
-output_dim_new = 256
+output_dim_new = 3
 token_embedding_layer = torch.nn.Embedding(vocab_size_new, output_dim_new) #  Creates an embedding layer that maps each token ID to a 256-dimensional vector.
 
 data_iter = iter(new_dataloader)
@@ -67,5 +68,19 @@ print("Positional Embeddings Shape: ", pos_embeddings.shape)
 
 # We generate input embeddings by adding token embeddings in pos_embeddings
 input_embeddings = token_embeddings + pos_embeddings
+print("Final Input Embeddings: ", input_embeddings)
 
 
+input2 = torch.tensor(
+  [[0.43, 0.15, 0.89], # Your     (x^1)
+   [0.55, 0.87, 0.66], # journey  (x^2)
+   [0.57, 0.85, 0.64], # starts   (x^3)
+   [0.22, 0.58, 0.33], # with     (x^4)
+   [0.77, 0.25, 0.10], # one      (x^5)
+   [0.05, 0.80, 0.55]] # step     (x^6)
+)
+
+attn = SimpleAttention(input2)
+
+attn_weights = attn.get_attention_weights()
+print(attn_weights)
