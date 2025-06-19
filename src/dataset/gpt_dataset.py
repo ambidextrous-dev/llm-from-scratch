@@ -4,7 +4,23 @@ from torch.utils.data import Dataset
 
 
 class GPTDatasetV1(Dataset):
+    """
+        A custom PyTorch Dataset class for preparing tokenized input-target pairs
+        for next-token prediction tasks (e.g., GPT-style language modeling).
+
+        It tokenizes a raw text input and slices it into overlapping input-target
+        sequences using a sliding window.
+    """
     def __init__(self, txt, tokenizer, max_length, stride):
+        """
+            Initializes the dataset by creating overlapping input-target token sequences.
+
+            Args:
+                txt (str): The raw input text to be tokenized and chunked.
+                tokenizer (tiktoken.Encoding): Tokenizer instance used to convert text to token IDs.
+                max_length (int): The fixed length of each input sequence (in tokens).
+                stride (int): Step size for the sliding window. Smaller stride = more overlap = more data.
+        """
         self.input_ids = []
         self.target_ids = []
 
