@@ -1,6 +1,5 @@
 import torch
 
-# assume we have embeddings for an input text
 inputs = torch.tensor(
   [[0.43, 0.15, 0.89], # Your     (x^1)
    [0.55, 0.87, 0.66], # journey  (x^2)
