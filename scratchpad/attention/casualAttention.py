@@ -1,0 +1,52 @@
+# Causal attention, also known as masked attention, is a specialized form of self-attention.
+# It restricts a model to only consider previous and current inputs in a sequence when processing any given token when computing attention scores.
+
+import torch
+
+from src.attention.selfAttention import SelfAttention_v2
+
+inputs = torch.tensor(
+  [[0.43, 0.15, 0.89], # Your     (x^1)
+   [0.55, 0.87, 0.66], # journey  (x^2)
+   [0.57, 0.85, 0.64], # starts   (x^3)
+   [0.22, 0.58, 0.33], # with     (x^4)
+   [0.77, 0.25, 0.10], # one      (x^5)
+   [0.05, 0.80, 0.55]] # step     (x^6)
+)
+
+
+torch.manual_seed(789)
+sa_v2 = SelfAttention_v2(3, 2)
+
+queries = sa_v2.W_query(inputs)
+keys = sa_v2.W_key(inputs)
+
+attn_scores = queries @ keys.T
+attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=-1)
+print("attn weights: ", attn_weights)
+
+# We use PyTorch’s tril function to create a mask where the values above the diagonal are zero
+context_length = attn_scores.shape[0]
+mask_simple = torch.tril(torch.ones(context_length, context_length))
+print("mask : ", mask_simple)
+
+# Now, we  multiply this mask with the attention weights to zero-out the values above the diagonal
+masked_simple = attn_weights*mask_simple
+print("masked scores: ", masked_simple)
+
+# Next we renormalize the attention weights to sum up to 1 again in each row.
+# We can achieve this by dividing each element in each row by the sum in each row:
+row_sums = masked_simple.sum(dim=-1, keepdim=True)
+masked_simple_norm = masked_simple / row_sums
+print("normalized mask", masked_simple_norm)
+
+# A more efficient way to obtain the masked attention weight matrix in causal attention is to mask the attention scores with
+# negative infinity values before applying the softmax function.
+attn_scores = queries @ keys.T  # we got our attention scores like this from Self Attention V2
+mask = torch.triu(torch.ones(context_length, context_length), diagonal=1)
+masked = attn_scores.masked_fill(mask.bool(), -torch.inf)
+print("mask", masked)
+
+attn_weights = torch.softmax(masked / keys.shape[-1]**0.5, dim=1)
+print(attn_weights)
+
