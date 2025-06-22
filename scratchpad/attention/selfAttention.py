@@ -69,11 +69,30 @@ print("attn_scores_2: ", attn_scores_2)
 # Now we will scale down our scores.
 # The raw dot products between queries and keys can get very large in magnitude, especially when the dimensionality of the vectors (d_k) is high.
 # This causes:
-#    1. Very sharp softmax outputs (almost one-hot), leading to vanishing gradients
+#    1. Very sharp softmax outputs (almost one-hot), leading to vanishing gradients, almost reaching zero
 #    2. Unstable training
 # So, we scale the scores by dividing the scores by square root of the embedding dimension of the keys
+# The scaling by the square root of the embedding dimension is the reason why this self-attention mechanism is also called scaled-dot product attention.
 
 d_k = keys.shape[-1]
 attn_weights_2 = torch.softmax(attn_scores_2 / d_k**0.5, dim=-1)
-print(attn_weights_2)
+print("attn weights w.r.t second token: ", attn_weights_2)
+
+context_vec_2 = attn_weights_2 @ values
+print("contxt_vector_2:", context_vec_2)
+
+# Each token (word/vector) in the input acts like:
+#      1) A query looking for related information in the sentence.
+#      2) A key describing what information each token holds.
+#      3) A value representing the actual content each token offers.
+#
+# So: Query = "What am I looking for?"    Key = "What do I offer?"      Value = "What do I contain?"
+# Each word sends out a query, compares it to all keys in the sequence (even its own),
+# and uses that to figure out how much of each value it should pull in to compute its final representation
+
+#Even though all three (Q, K, V) are derived from the same input, they’re projected using different trainable matrices
+# so the model can learn different roles:
+# Q (Query): What to attend to.
+# K (Key): How important each word is in response to a query.
+# V (Value): The actual data used to build the output (contextualized representation).
 
