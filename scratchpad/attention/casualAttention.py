@@ -50,3 +50,26 @@ print("mask", masked)
 attn_weights = torch.softmax(masked / keys.shape[-1]**0.5, dim=1)
 print(attn_weights)
 
+
+# Dropout in deep learning is a technique where randomly selected hidden layer units are ignored during training, effectively “dropping” them out.
+# This method helps prevent overfitting by ensuring that a model does not become overly reliant on any specific set of hidden layer units.
+# Dropout is only used during training and is disabled afterward.
+# In the transformer architecture dropout in the attention mechanism is typically applied at two specific times:
+#     1) after calculating the attention weights
+#     2) after applying the attention weights to the value vectors.
+# Here we will apply the dropout mask after computing the attention weights
+# Basically we will calculate the masked attention scores as we did in the casual attention and then randomly drop some scores
+
+# example of pytorch's dropout function
+torch.manual_seed(123)
+dropout = torch.nn.Dropout(0.5)    #1 We choose a dropout rate of 50%.
+# example = torch.ones(6, 6)      #2 creating a 6 X 6 matrix of 1s
+# print(dropout(example))
+
+# applying dropout of 50% to attention weights
+print(dropout(attn_weights))
+
+# Note:  To compensate for the reduction in active elements, the values of the remaining elements in the matrix are scaled up by a factor of 1/0.5 = 2.
+# This scaling is crucial to maintain the overall balance of the attention weights, ensuring that the average influence of the
+# attention mechanism remains consistent during both the training and inference phases.
+# This is implicitly done by PyTorch's Dropout function

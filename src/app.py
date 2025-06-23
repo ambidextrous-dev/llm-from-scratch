@@ -2,6 +2,7 @@ import torch
 
 from src.attention.selfAttention import SelfAttention_v1, SelfAttention_v2
 from src.attention.simpleAttention import SimpleAttention
+from src.attention.casualAttention import  CasualAttention
 
 input = torch.tensor(
   [[0.43, 0.15, 0.89], # Your     (x^1)
@@ -17,12 +18,27 @@ input = torch.tensor(
 # attn_weights = attn.get_attention_weights()
 # print(attn_weights)
 
-# calculate self attention weights
-torch.manual_seed(124)
-selfAttn = SelfAttention_v1(input.shape[1], 2)
-print(selfAttn(input))
+# # calculate self attention weights
+# torch.manual_seed(124)
+# selfAttn = SelfAttention_v1(input.shape[1], 2)
+# print(selfAttn(input))
+#
+# # calculate self attention weights
+# torch.manual_seed(124)
+# selfAttnV2 = SelfAttention_v2(input.shape[1], 2)
+# print(selfAttnV2(input))
 
-# calculate self attention weights
-torch.manual_seed(124)
-selfAttnV2 = SelfAttention_v2(input.shape[1], 2)
-print(selfAttnV2(input))
+
+#################################################
+# Casual Attention
+#################################################
+
+batch = torch.stack((input, input), dim=0)
+print(batch.shape)
+
+torch.manual_seed(123)
+context_length = batch.shape[1]
+ca = CasualAttention(input.shape[1], 2, context_length, 0.0)
+context_vecs = ca(batch)
+print("context_vecs.shape:", context_vecs.shape)
+

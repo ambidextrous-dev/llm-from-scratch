@@ -35,6 +35,7 @@ class SelfAttention_v2(nn.Module):
         self.W_key   = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
 
+    # supports batches
     def forward(self, x):
         keys = self.W_key(x)
         queries = self.W_query(x)
